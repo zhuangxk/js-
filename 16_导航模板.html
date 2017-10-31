@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>导航</title>
+</head>
+	<style type="text/css">
+		
+	</style>
+<body>
+	<div id="content"></div>
+</body>
+	<script type="text/javascript">
+		//格式化
+		function formatString(str,data){
+			return str.replace(/\{\{(\w+)\}\}/g,function(match,key){
+				return typeof data[key]==='undefined'?'':data[key];
+			});
+		}
+
+
+		var Nav = function(config){
+			this.item='<a href="{{href}}" title="{{title}}">{{name}}</a>';
+			this.html='';
+			for (var i = config.length - 1; i >= 0; i--) {
+				this.html+= formatString(this.item,config[i])+'</br>';
+			}
+			return this.html;
+		}
+
+		var NumNav = function(config){
+			var tpl ='<b>{{num}}</b>';
+			for (var i = config.length - 1; i >= 0; i--) {
+				config[i].name += formatString(tpl,config[i]);
+			}
+			return Nav.call(this,config);
+		}
+
+		//---
+		//debugger
+		var nav =document.getElementById('content');
+		nav.innerHTML=NumNav([{
+			href:'http://www.baidu.com',
+			title:'百度一下，你就知道',
+			name:'百度	',
+			num:1
+		},{
+			href:'http://www.taobao.com',
+			title:'淘宝网',
+			name:'淘宝',
+			num:2
+		}])
+
+
+
+	</script>
+</html>

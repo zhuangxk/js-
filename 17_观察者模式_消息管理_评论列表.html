@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>消息管理</title>
+	<style type="text/css">
+		li{
+			list-style: none;
+
+		}
+		nav li{
+			float: left;
+			padding: 0 0 20px 20px;
+		}
+		textarea{
+			width: 50em;
+		}
+		h3{
+			clear: left;
+		}
+		#msgnum{
+			background:#ED2083;
+			padding: 0 4px;
+			color: #fff;
+			border-radius: 50% 50%;
+		}
+
+		#list {
+			width: 50em;
+		}
+		#list li:nth-of-type(odd){
+			margin-top: 10px;
+			background-color:#DFC0E4;
+		}
+		#list li:nth-of-type(even){
+			margin-top: 10px;
+			background-color: #C0D7E4;
+		}
+		#list span{
+			float: right;
+			cursor: pointer;
+		}
+		#list span:hover{
+			color: #fff;
+		}
+	</style>
+
+</head>
+<body>
+	<nav>
+		<ul>
+			<li>TOKYO</li>
+			<li>等级: <span>0</span></li>
+			<li>消息: <span id='msgnum'>0</span></li>
+		</ul>
+	</nav>
+	<section>
+		<h3>最新发布列表</h3>
+		<ul id='list'>
+
+		</ul>
+	</section>
+	<section>	
+		<textarea id = 'comment' rows=5 ></textarea>
+	</section>
+	<input id ='commit' type="button" name="" value="提交">
+</body>
+<script type="text/javascript">
+	/**
+	 * 创建一个观察者，包含 注册 ，发布 ，移除方法
+	 */
+
+	var Observer = (function(){
+		var _message={}
+		return {
+			regist:function(type,fn){
+				if(_message[type]){
+					_message[type].push(fn);
+				}else{
+					_message[type]=[fn];
+				}
+			},
+			fire:function(type,args){
+				var event={
+					type:type,
+					args:args
+				}
+				if(_message[type]){
+					for (var i = _message[type].length - 1; i >= 0; i--) {
+						_message[type][i].call(this,event);
+					}
+				}
+			},
+			remove:function(type,fn){
+				if(_message[type]){
+					for (var i = _message[type].length - 1; i >= 0; i--) {
+						_message[type][i]===fn&&_message[type].splice(i,1);
+					}
+				}
+			}
+		}
+	})();
+
+//--------------------------------------
+Observer.regist('test',function(e){
+	console.log(e.type,e.args);
+})
+Observer.fire('test',{
+	name:'hello'
+})
+//--------------------------------------
+function $(id){
+	return document.getElementById(id);
+}
+//模块一 消息发布
+(function(){
+	$('commit').onclick=function(){
+		var text=$('comment');
+		if(text.value!=''){
+			Observer.fire('addCommnt',{
+				comment:text.value,
+				num:1
+			});
+			text.value='';
+		}
+	}
+})();
+//模块二 列表
+//
+(function(){
+	var add = function(e){
+		var li = document.createElement('li')
+		li.innerHTML=e.args.comment;
+		var del = document.createElement('span');
+		del.innerHTML='delete';
+		del.onclick=function(){
+			$('list').removeChild(li);
+			Observer.fire('removeCommnt',{
+				num:-1
+			});
+		}
+		li.appendChild(del);
+		$('list').appendChild(li);
+
+	}
+	Observer.regist('addCommnt',add);
+})();
+//模块三 消息提醒
+(function(){
+	var change=function(e){
+		var num = e.args.num;
+		$('msgnum').innerHTML= parseInt($('msgnum').innerHTML)+num;
+	}
+	Observer.regist('addCommnt',change);
+	Observer.regist('removeCommnt',change);
+})()
+
+
+/**
+ * 这就是一个 发布，，订阅的功能 
+ * 观察者模式最主要的功能就是降低对象之间的耦合；
+ */
+</script>
+</html>

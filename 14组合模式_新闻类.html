@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>新闻组合实现</title>
+</head>
+<style type="text/css">
+	.new-container{
+		width: 300px;
+		margin: 20px auto;
+		box-shadow: 0 0 0 1px red;
+		list-style: none;
+	}
+	.liclass{
+
+		border-bottom: 1px solid yellow;
+	}
+	a{
+		color: #000;
+		text-decoration: none;
+	}
+	.newsgroup{
+		background-color: #CCC;
+	}
+	.icon-video{
+		color: #720;
+	}
+	.new-inmage{
+		max-width: 100px;
+	}
+
+</style>
+<body>
+	
+</body>
+<script type="text/javascript">
+
+	//原型对象继承封装
+	function inherit(SubClass,SuperClass){
+		function F(){};
+		F.prototype=SuperClass.prototype;
+		var p = new F();
+		p.constructor=SubClass;
+		SubClass.prototype=p;
+	};
+	/**
+	 * 组合模式特点：
+	 */
+	/*新闻类抽象接口*/
+	var News = function(){
+		this.children=[];
+		this.element=null;
+	}
+	News.prototype.init= function(){
+		throw new Error('请重写你的方法');
+	}
+	News.prototype.add= function(){
+		throw new Error('请重写你的方法');
+	}
+	News.prototype.getElement= function(){
+		throw new Error('请重写你的方法');
+	}
+	/*容器类*/
+	var Container = function(id,parent){
+		News.call(this);
+		this.id=id;
+		this.parent=parent;
+		this.init();
+	}
+	inherit(Container,News);
+	Container.prototype.init=function(){
+		this.element = document.createElement('ul');
+		this.element.id= this.id;
+		this.element.className = 'new-container';
+	}
+	Container.prototype.add=function(child){
+		this.children.push[child];
+		this.element.appendChild(child.getElement());
+		return this;
+	}
+	Container.prototype.getElement=function(child){
+		return this.element;
+	}
+	Container.prototype.show=function(){
+		this.parent.appendChild(this.element);
+	}
+	/* 下层*/
+	var Item = function(classname){
+		News.call(this);
+		this.classname=classname;
+		this.init();
+	}
+	inherit(Item,News);
+	Item.prototype.init=function(){
+		this.element = document.createElement('li');
+		this.element.className=this.classname;
+	}
+	Item.prototype.add=function(child){
+		this.children.push(child);
+		this.element.appendChild(child.getElement());
+		return this;
+	}
+	Item.prototype.getElement=function(child){
+		return this.element;
+	}
+	/* 新闻组*/
+
+	var NewsGroup= function(classname) {
+		News.call(this);
+		this.classname=classname || '';
+		this.init();
+	}
+	inherit(NewsGroup,News);
+	NewsGroup.prototype.init=function(){
+		this.element= document.createElement('div');
+		this.element.className=this.classname;
+	}
+	NewsGroup.prototype.add=function(child){
+		this.children.push(child);
+		this.element.appendChild(child.getElement());
+		return this
+	}
+	NewsGroup.prototype.getElement=function(child){
+		return this.element;
+	}
+	/* 3 个容器  div ul li */
+	/**
+	 * 继续创建新闻实体类 新闻实体类不能有成员
+	 */
+	var ImageNews = function(url,href,classname){
+		News.call(this);
+		this.url = url||'';
+		this.href = href ||'';
+		this.classname = classname;
+		this.init();
+	}
+	inherit(ImageNews,News);
+	ImageNews.prototype.init=function(){
+		this.element= document.createElement('a');
+		var img= new Image();
+		img.src=this.url;
+		img.alt='ImageNEws';
+		img.className=this.classname;
+		this.element.href=this.href;
+		this.element.appendChild(img);
+	}
+	ImageNews.prototype.add=function(){}
+	ImageNews.prototype.getElement=function(){
+		return this.element;
+	}
+	//--
+	var IconNews = function (text,href,type){
+		News.call(this);
+		this.text=text||'';
+		this.href=href||'#';
+		this.type=type||'video';
+		this.init();
+	}
+	inherit(IconNews,News);
+	IconNews.prototype.init=function(){
+		this.element=document.createElement('a');
+		this.element.href=this.href;
+		this.element.className='icon-'+this.type;
+		this.element.innerHTML=this.text;
+	}
+	IconNews.prototype.add=function(){}
+	IconNews.prototype.getElement=function(){
+		return this.element;
+	}
+	//--
+	var EasyNews = function(text,href){
+		News.call(this);
+		this.text=text;
+		this.href=href;
+		this.init();
+	}
+	inherit(EasyNews,News);
+	EasyNews.prototype.init=function(){
+		this.element=document.createElement('a');
+		this.element.href=this.href;
+		this.element.innerHTML=this.text;
+	}
+	EasyNews.prototype.add=function(){}
+	EasyNews.prototype.getElement=function(){
+		return this.element;
+	}
+	//--
+
+	var new1 = new Container('news',document.body);
+	var new2 = new Container('news',document.body);
+	new1.add(
+		new Item('liclass').add(
+			new EasyNews('EasyNews News','#1')
+		).add(
+			new NewsGroup('newsgroup').add(
+				new EasyNews('group Easynews !','#2')
+				)
+			).add(
+				new IconNews('Iconnews','#3','video')
+			)
+		).add(
+			new Item('liclass').add(
+				new ImageNews('http://ylxt.dhcc.com.cn/ylxt/css/images/dhc.png','#4','new-inmage')
+			)
+		).show();
+	new2.add(new Item('liclass').add(new EasyNews('EasyNews News','#5'))).show();
+
+
+/**
+ * 总结 组合模式：通过继承同一个父类 拥有统一的方法，进行统一的调用。
+ */
+</script>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>drag</title>
+	<style type="text/css">
+		.blue{
+			position:absolute;
+			width: 100px;
+			height: 100px;
+			background: blue;
+			border: 5px solid #ddd;
+		}
+		.yellow{
+			position: absolute;
+			left:100px;
+			width: 100px;
+			height: 100px;
+			background-color: yellow
+		}
+	</style>
+	<script type="text/javascript">
+		function Drag(id){
+			this.el= document.getElementById(id);
+			this.disX=0;
+			this.disY=0;
+
+		}
+		Drag.prototype.init=function(){
+			//初始化 注册元素的 onmousedown 事件
+			var This=this;
+			this.el.onmousedown=function(e){
+				//注册 document.onmousemove 和 document.onmouseup
+				var e = e||window.event;
+				This.downfn(e);
+				document.onmousemove=function(e){
+					var e = e||window.event;
+					This.movefn(e);
+				}
+				document.onmouseup=function(){
+					This.upfn();
+				}
+			}
+		}
+		Drag.prototype.downfn=function(e){
+			//鼠标点下 记录 鼠标相对于元素本身的位置
+			//e.offsetX 只是相对于元素pading内的位置 ， 所以要 鼠标位置-相对父元素（window）的位置更准确
+			this.disX=e.clientX  -this.el.offsetLeft; //e.offsetX
+			this.disY=e.clientY  -this.el.offsetTop; //e.offsetY
+		}
+		Drag.prototype.movefn=function(e){
+			this.el.style.left=e.clientX-this.disX+'px';
+			this.el.style.top= e.clientY-this.disY+'px';
+
+		}
+		Drag.prototype.upfn=function(){
+			document.onmousemove=null;
+			document.onmouseup=null;
+		}
+		//子类
+		function DragSub(){
+			Drag.apply(this,arguments);
+		};
+		function f(){};
+		f.prototype=Drag.prototype;
+		DragSub.prototype=new f();
+
+		DragSub.prototype.movefn=function(e){
+			var l=e.clientX-this.disX;
+			var t=e.clientY-this.disY;
+			var maxw = document.documentElement.clientWidth-this.el.clientWidth;
+			var maxh = document.documentElement.clientHeight-this.el.clientHeight;
+			l=l<0?0:l; l=l>maxw?maxw:l;
+			t=t<0?0:t; t=t>maxh?maxh:t;
+			this.el.style.left=l+'px';
+			this.el.style.top =t +'px';
+		}
+
+		window.onload=function(){
+			var D1 = new Drag('blue');
+			D1.init();
+
+			var D2 = new DragSub('div2');
+			D2.init();
+
+		}
+	</script>
+</head>
+
+<body>
+	<div id='blue' class="blue"></div>
+	<div id='div2' class="yellow"></div>
+</body>
+</html>

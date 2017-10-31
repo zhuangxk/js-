@@ -55,5 +55,5 @@ var person = function(name, work){
 	_person.work=new Work(work);
 	return _person;
 }
-var p  = new person('tokyo hot','code');
+var p  = new person('tokyoq','code');
 console.log(p)

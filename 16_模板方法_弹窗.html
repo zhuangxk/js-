@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>弹窗类</title>
+	<style type="text/css">
+		.alert{
+		    width:300px;
+			height: 150px;
+		  	min-height:150px;
+		    margin: auto;
+		    position: absolute;
+		    z-index:9999;
+		    top: 0;
+		    bottom: 0;
+		    left: 0;
+		    right: 0;
+		    background-color: #12BCF6;
+		}
+		.a-content{
+			margin: 20px 30px;
+		}
+		.a-confirm{
+			padding: 5px 10px;
+			background: #EA0707;
+			margin-right: 50px;
+			float: right;
+			color: #fff;
+			cursor: pointer;
+		}
+		.a-cancel{
+			padding: 5px 10px;
+			background: #EC9C0A;
+			margin-right: 50px;
+			float: right;
+			color: #fff;
+			cursor: pointer;
+		}
+		.a-close{
+			float: right;
+			position: relative;
+			right: 10px;
+			top: 10px;
+			color: #ddd;
+			cursor: pointer;
+		}
+		.a-title{
+			background-color: #607D8B;
+		    padding: 5px 20px;
+		    margin: 0;
+		}
+	</style>
+
+</head>
+
+
+<body>
+
+</body>
+	<script type="text/javascript">
+		var Alert = function(config){
+			if(!config) return
+			this.panel = document.createElement('div');
+			this.panel.className='alert';
+			this.contentNode = document.createElement('p');
+			this.contentNode.className = 'a-content';
+			this.confirmBtn = document.createElement('span');
+			this.confirmBtn.className='a-confirm';
+			this.closeBtn = document.createElement('b');
+			this.closeBtn.innerHTML="×";
+			this.closeBtn.className='a-close';
+
+			this.content = config.content;
+			this.confirm = config.confirm;
+			this.contentNode.innerHTML = this.content;
+			this.confirmBtn.innerHTML =  this.confirm;
+			this.success=config.success||function(){}
+			this.fail = config.fail ||function(){}
+		}
+		Alert.prototype={
+			constructor:Alert,
+			init:function(){
+				this.panel.appendChild(this.closeBtn);
+				this.panel.appendChild(this.contentNode);
+				this.panel.appendChild(this.confirmBtn);
+				document.body.appendChild(this.panel);
+				this.bindEnvent();
+				this.show();
+			},
+			bindEnvent:function(){
+				var me = this;
+				me.closeBtn.onclick = function(){
+					me.fail();
+					me.hide();
+				}
+				me.confirmBtn.onclick=function(){
+					me.success();
+					me.hide();
+				}
+			},
+			hide:function(){
+				this.panel.style.display='none';
+			},
+			show:function(){
+				this.panel.style.display='inline-block';
+			}
+		}
+
+
+		/**
+		 * 扩展
+		 */
+		var TitleAlert = function(config){
+			if(!config) return
+			Alert.call(this,config);
+			this.title=config.title;	
+			this.titleNode =  document.createElement('h3');
+			this.titleNode.className='a-title';
+			this.titleNode.innerHTML=this.title;
+		}
+		TitleAlert.prototype=new Alert();
+		TitleAlert.prototype.init=function(){
+			Alert.prototype.init.call(this);
+			this.panel.insertBefore(this.titleNode,this.panel.childNodes[1]);
+		}
+
+		/**
+		 * 二次扩展
+		 */
+		
+		var CancelAlert = function(config){
+			TitleAlert.call(this,config);
+			this.cancel=config.cancel;
+			this.cancelBtn=document.createElement('span');
+			this.cancelBtn.className='a-cancel';
+			this.cancelBtn.innerHTML=this.cancel;
+		}
+		CancelAlert.prototype= new TitleAlert();
+		CancelAlert.prototype.init= function(){
+			TitleAlert.prototype.init.call(this);
+			//this.panel.insertBefore(this.cancelBtn,this.confirmBtn);
+			this.panel.appendChild(this.cancelBtn);
+		}
+		CancelAlert.prototype.bindEnvent=function(){
+			TitleAlert.prototype.bindEnvent.call(this);
+			var me = this;
+			this.cancelBtn.onclick=function(){
+				me.fail();
+				me.hide();
+			}
+		}
+
+
+		function test(){
+			new Alert({
+				success:function(){
+					console.log(1)
+				},
+				fail:function(){
+					console.log(0)
+				},
+				content:'我的弹窗',
+				confirm:'OK'
+			}).init();
+		}
+		function test1(){
+			new TitleAlert({
+				success:function(){
+					console.log(1)
+				},
+				fail:function(){
+					console.log(0)
+				},
+				title:'我的标题',
+				content:'我的弹窗',
+				confirm:'OK'
+			}).init();
+		}
+		function test2(){
+			new CancelAlert({
+				success:function(){
+					console.log(1)
+				},
+				fail:function(){
+					console.log(0)
+				},
+				title:'我的标题',
+				content:'我的弹窗',
+				confirm:'OK',
+				cancel:'cancel'
+			}).init();
+		}
+
+
+
+	</script>
+<input type="button" value="弹出 基本模板" onclick="test()"/>
+<input type="button" value="弹出 带标题模板" onclick="test1()"/>
+<input type="button" value="弹出 带取消模板" onclick="test2()"/>
+
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JSONP</title>
+	<script type="text/javascript">
+		function callback(param){
+			console.dir(param);
+		}
+	</script>
+<!-- 	自定义接口  php
+<?php
+
+	$data = $_GET["data"];
+	$cb=$_GET["cb"];
+	echo $cb."({num:10,name:".$data."})"
+
+?> -->
+
+	<script type="text/javascript" src='http://127.0.0.1:89/jsonp.php?data="e99999"&cb=callback'></script>
+
+<!-- 	百度首页接口 -->
+	<script type="text/javascript" src="https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?wd='庄'&cb=callback"></script>
+<!--
+下一步 jsonp 封装 -->
+</head>
+<body>
+
+</body>
+</html>
