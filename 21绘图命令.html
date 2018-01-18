@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>绘图命令</title>
+	<style type="text/css">
+		#command{
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin: -250px -600px;
+			border: 1px dashed red;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="command" width="1200" height="500"></canvas>
+	<script>
+		//多变形
+		function polygon(c,n,x,y,r,angle,counterclockwise){
+			angle = angle||0;
+			counterclockwise=counterclockwise||	false;
+			c.moveTo(x+r*Math.sin(angle),y-r*Math.cos(angle)); //计算初始位置
+			var delta = 2*Math.PI/n;//n变形夹角
+			for (;n>1;n--) //循环剩余的顶点
+			{
+				angle += counterclockwise?-delta:delta; //循环递增角度
+				c.lineTo(x+r*Math.sin(angle),y-r*Math.cos(angle));
+			}
+			c.closePath();
+		}
+
+		var canvasCammand =(function(){
+			var canvas = document.getElementById('command');
+			c = canvas.getContext('2d');
+			var Action={
+				fillStyle:function(v){
+					c.fillStyle=v;
+				},
+				fillRect:function(x,y,width,height){
+					c.fillRect(x,y,width,height)
+				},
+				strokeStyle:function(v){
+					c.strokeStyle=v;
+				},
+				fillText:function(v,x,y){
+					c.fillText(v,x,y);
+				},
+				beginPath:function(){
+					c.beginPath();
+				},
+				moveTo:function(x,y){
+					c.moveTo(x,y);
+				},
+				lineTo:function(x,y){
+					c.lineTo(x,y);
+				},
+				arc:function(x,y,r,begin,end,dir){
+					c.arc(x,y,r,begin,end,dir);
+				},
+				fill:function(){
+					c.fill();
+				},
+				stroke:function(){
+					c.stroke();
+				},
+				strokeText:function(text,x,y){
+					c.strokeText(text,x,y)
+				},
+				strokeRect (x,y,w,h){
+					c.strokeRect(x,y,w,h)
+				},
+				clip(){
+					c.clip();
+				},
+				font:function(v){
+					c.font=v;
+				},
+				lineWidth:function(v){
+					c.lineWidth=v;
+				},
+				polygon:function(n,x,y,r,angle,counterclockwise){
+					polygon(c,n,x,y,r,angle,counterclockwise)
+				},
+				other:function(p,v){
+					c[p]=v
+				}
+			}
+			return {
+				excute:function(msg){
+					if(!msg)return;
+					if(msg.length){//深度递归数组
+						for (var i = 0,len=msg.length; i < len; i++) {
+							arguments.callee(msg[i]);
+						}
+					}else{//真正逻辑部分
+						msg.param=Object.prototype.toString.call(msg.param)==='[object Array]'?msg.param:[msg.param];
+						console.log(msg.command)
+						
+						Action[msg.command].apply(Action,msg.param);
+					}
+				}
+			}
+		})()
+
+
+
+//测试代码
+
+	canvasCammand.excute([{
+		command:'font',param:'bold 60pt sans-serif'
+	},{
+		command:'lineWidth',param:'2'
+	},{
+		command:'strokeRect',param:[175,25,50,325]
+	},{
+		command:'strokeText',param:['<canvas>',15,330]
+	},{
+		command:'polygon',param:[3,200,225,200]
+	},{
+		command:'polygon',param:[3,200,225,100,0,true]
+	},{
+		command:'clip'
+	},{
+		command:'lineWidth',param:10
+	},{
+		command:'stroke'
+	},{
+		command:'fillStyle',param:'#aaa'
+	},{
+		command:'other',param:['shadowColor','rgba(100,0,0,.4)']
+	},{
+		command:'other',param:['shadowOffsetX',10]
+	},{
+		command:'other',param:['shadowOffsetY',10]
+	},{
+		command:'other',param:['shadowBlur',5]
+	},{
+		command:'fillRect',param:[175,25,50,325]
+	},{
+		command:'fillStyle',param:'#888'
+	},{
+		command:'fillText',param:['<canvas>',15,330]
+	}])
+	</script>
+</body>
+</html>

@@ -7,7 +7,13 @@
 		function callback(param){
 			console.dir(param);
 		}
+	function jsonpCallBack(v){
+		console.log(v);
+	}
 	</script>
+
+
+</head>
 <!-- 	自定义接口  php
 <?php
 
@@ -17,14 +23,46 @@
 
 ?> -->
 
-	<script type="text/javascript" src='http://127.0.0.1:89/jsonp.php?data="e99999"&cb=callback'></script>
+<!-- 	<script type="text/javascript" src='http://127.0.0.1:89/jsonp.php?data="e99999"&cb=callback'></script> -->
 
-<!-- 	百度首页接口 -->
-	<script type="text/javascript" src="https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?wd='庄'&cb=callback"></script>
-<!--
-下一步 jsonp 封装 -->
-</head>
 <body>
 
 </body>
+<script type="text/javascript">
+
+	var param = {"courseId":"10671818","userId":169286201,"watchType":"2","jsonpCallBack":"jsonpCallBack","videoId":453779,"sourceType":1}
+	var ret = '';
+	//"relativeTime":"1",
+	for (key in param) {
+		ret = ret +key+'='+param[key]+ '&';
+	}
+
+
+
+   	var url='http://im.livecourse.com//live/setWatchHistory?';
+
+
+	for (var i=1; i < 60; i++) {
+		console.log(i)
+		var script = document.createElement('script');
+		document.body.appendChild(script)
+		src = url+ret+'relativeTime='+i
+		script.src = src;
+	}
+
+
+
+</script>
+
+
+
+
+
+
+<!-- 	百度首页接口 -->
+<!-- 	<script type="text/javascript" src="https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?wd='庄'&cb=callback"></script> -->
+<!--
+下一步 jsonp 封装 -->
+
+
 </html>

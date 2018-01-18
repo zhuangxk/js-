@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>命令模式</title>
+		<style type="text/css">
+		*{
+			font-family: 'Microsoft YaHei';
+		}
+		.img{
+			width: 200px;
+			position: relative;
+			display: inline-block;
+			margin: 20px 50px;
+			border: 1px solid green;
+			border-radius: 4px;
+			box-shadow: 2px 3px 2px #fff;
+
+		}
+		.img img{
+			max-width: 200px;
+		}
+
+		.img p{
+			margin: 0;
+			background-color: rgba(0, 0, 0, 0.5);
+			width: 180px;
+			padding: 3px 10px;
+			color: #fff;
+			line-height: 30px;
+			position: absolute;
+			bottom:0;
+		}
+		.main{
+			border-bottom: 1px solid red;
+		}
+		.title{
+			margin: 50px;
+		}
+		.title p {
+			position: relative;
+			display: inline-block;
+			bottom: -1px;
+			border-bottom: 1px solid #fff;
+			color: #444;
+			margin: 0;
+			padding: 0 20px;
+			margin-left: 50%;
+			text-align: right;
+		}
+	</style>
+</head>
+<body>
+	<div id="titleNode"></div>
+	<div id="container"></div>
+	<div id="singleimg"></div>
+
+	<script type="text/javascript">
+		/**
+		 *命令模式：将 请求 与 实现 解耦 并封装成独立对象
+		 *
+		 */
+
+		//模板实现模块
+		var viewCommand = (function(){
+			var tpl={
+				product:`
+					<div class='img'>
+						<img src='{{src}}' />
+						<p>{{text}}</p>
+					</div>
+				`,
+				title:`	<div class='title'>
+							<div class='main'>
+								<h2>{{title}}</h2>
+								<p>{{tips}}</p>
+							</div>
+						</div>`
+			},
+			html='';
+			function formatString(str , obj){
+				return str.replace(/\{\{(\w+)\}\}/g, function(match,key){
+					return obj[key];
+				})
+			}
+			var Action = {
+				create:function(data,view){
+					if(data.length){
+						for (var i = data.length - 1; i >= 0; i--) {
+							html+=formatString(tpl[view],data[i]);
+						}
+					}else{
+							html+=formatString(tpl[view],data);
+					}
+				},
+				display:function(container,view,data){
+					if(data) this.create(data,view);
+					document.getElementById(container).innerHTML=html;
+					html='';
+				}
+			}
+			return function execute(msg){
+				msg.param=Object.prototype.toString.call(msg.param)==='[object Array]'?msg.param:[msg.param];
+				Action[msg.command].apply(Action,msg.param);
+			}
+		})();
+/**
+ *
+ * 测试
+ */
+
+		var productData=[{
+			src:'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1509982359362&di=87a6c940a767eaa5d3505b3d91c16bd4&imgtype=0&src=http%3A%2F%2Fimg.mp.itc.cn%2Fupload%2F20170331%2Fcd03ee2e6c8c414492edf5a3ee9606a8_th.jpeg',
+			text:'网易云音乐'
+		},{
+			src:'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1509982359756&di=dd13a6c26a15b28038aab514afa19a24&imgtype=0&src=http%3A%2F%2Fimg2.cache.netease.com%2Fent%2F2014%2F7%2F2%2F201407021116204576b.jpg',
+			text:'地铁广告'
+		},{
+			src:'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1509985282836&di=efcc0c080f752b6c627ffef4cbe6f97c&imgtype=0&src=http%3A%2F%2Fstc.zjol.com.cn%2Fg1%2FM0004DCCggSBFjTFMSAfSfNAABZAKyG6VE248.jpg%3Fwidth%3D432%26height%3D316',
+			text:'戳泪乐评'
+		}];
+
+
+		var titleData = {
+			title:'网易云音乐地跌广告',
+			tips:'最怕一生碌碌无为,还说平凡难能可贵.——网易云音乐地铁广告'
+		};
+		viewCommand({
+			command:'display',
+			param:['container','product',productData]
+		});
+		viewCommand({
+			command:'display',
+			param:['titleNode','title',titleData]
+		});
+
+		viewCommand({
+			command:'create',
+			param:[{
+				src:'https://s7.sinaimg.cn/large/006KJekYzy7aoscoOKWa6&690',
+				text:'单张图片测试'
+			},'product']
+		});
+		viewCommand({
+			command:'display',
+			param:['singleimg','product']
+		});
+
+
+	</script>
+</body>
+</html>
