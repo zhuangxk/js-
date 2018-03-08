@@ -1,32 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<title>迭代器 canvas应用</title>
 	<script>
-		window.onload=function(){
-			var canvas = document.getElementsByTagName('canvas')[0], 
-				img = new Image();
-				img.onload=function(){
-					var	width = (canvas.width=img.width*2)/2,
-					height = canvas.height = img.height,
-					ctx = canvas.getContext('2d');
-					ctx.drawImage(img,0,0);
-					ctx.drawImage(img,503,0);
+		window.onload = function () {
+			var canvas = document.getElementsByTagName('canvas')[0],
+				ctx = canvas.getContext('2d'),
+				img = new Image(),
+				width = 0,
+				height = 0;
+			img.onload = function () {
+				width = (canvas.width = img.width * 2) / 2;
+				height = canvas.height = img.height;
+
+				ctx.drawImage(img, 0, 0);
+
+				dealImage2('red', 0, 0, width, height, 200);
+				//ctx.drawImage(img,503,0);	
+			};
+			img.src = "testimg.png";
+			/**
+			 * @description canvas处理函数 此方法处理图片需要几分钟之多
+			 * @param t 特效类型
+			 * @param x x坐标
+			 * @param y y坐标
+			 * @param w 宽度
+			 * @param h 高度
+			 * @param a 透明度
+			*/
+			function dealImage(t, x, y, w, h, a) {
+				//var ctx = document.getElementsByTagName('canvas')[0].getContext('2d');
+				var canvasdata = ctx.getImageData(x, y, w, h);
+				//像素数据
+				var data = canvasdata.data;
+				// 遍历每个像素数据，每四个像素数据作为 一个像素点，代表红、绿、蓝、透明度
+				for (let i = 0, len = data.length; i < len; i += 4) {
+					//console.log('length='+len+',i='+i+','+parseInt(i/len*100));
+					switch (t) {
+						case 'red':
+							data[i + 1] = 0;
+							data[i + 2] = 0;
+							data[i + 3] = a;
+							break;
+						case 'green':
+							data[i] = 0;
+							data[i + 2] = 0;
+							data[i + 3] = a;
+							break;
+						case 'blue':
+							data[i] = 0;
+							data[i + 1] = 0;
+							data[i + 3] = a;
+							break;
+						case 'gray':
+							var num = (data[i] + data[i + 1] + data[i + 2]) / 3
+							data[i] = num;
+							data[i + 1] = num;
+							data[i + 1] = num;
+							data[i + 3] = a;
+							break;
+						default:
+							break;
+					}
+					ctx.putImageData(canvasdata, width + x, y)
+
+				}
+
+			}// dealImage end
+
+			/**
+			 *优化算法 
+			*/
+			function dealImage2(t, x, y, w, h, a) {
+				var canvasdata = ctx.getImageData(x, y, width, height);
+				var data = canvasdata.data;
+				//状态模式封装
+				var Deal = function () {
+					var method = {
+						'default': function (i) {
+							return method['gray'][i];
+						},
+						'gray': function (i) {
+							data[i] = data[i + 1] = parseInt(data[i + 2] = (data[i] + data[i + 1] + data[i + 2] / 3));
+							data[i + 3] = a;
+						},
+						'red': function (i) {
+							data[i + 1] = 0;
+							data[i + 2] = 0;
+							data[i + 3] = a;
+						}
+					}
+					return function (type) {
+						return method[type] || method['default'];
+					}
+				}();
+				function eachData(fn) {
+					for (let i = 0, len = data.length; i < len; i += 4) {
+						fn(i);
+					}
 				};
-				img.src="testimg.png";
+				eachData(Deal(t));
+				ctx.putImageData(canvasdata, width + x, y);
 
-
-
-			function dealImage(t,x,y,w,h,a){
-				var canvasdata = ctx
 			}
 		}
 
+
+
 	</script>
 </head>
+
 <body>
 	<canvas>
 	</canvas>
 </body>
+
 </html>

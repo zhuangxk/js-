@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>解释器模式</title>
+    <script>
+
+        var Interperter = (function () {
+
+            //获取兄弟元素名称
+            function getSiblingName(node) {
+                console.log("%c"+node.nodeName,"color:green;")
+                if (!node.previousSibling) return ''
+                var name = '', //返回兄弟元素名称字符串
+                    count = 1, //紧邻兄弟元素中相同名称的个数
+                    nodeName = node.nodeName,//原始节点名称
+                    sibling = node.previousSibling; //前一个兄弟元素
+                while (sibling) {
+                    //如果前一个节点是元素，且前一个节点与本节点类型相同，且前一个节点节点名称存在
+                    if (sibling.nodeType == 1 && sibling.nodeType === node.nodeType && sibling.nodeName) {
+                        //如果节点名称相同
+                        if (nodeName == sibling.nodeName) {
+                            name += ++count;
+                            //数字的意义是连续出现相同节点的个数 ，但是此处在复杂页面有bug！
+                        } else {
+                            count = 1;
+                            name += '|' + sibling.nodeName.toUpperCase();
+                        }
+                    }
+                    sibling = sibling.previousSibling;
+
+                    console.log(name)
+                }
+
+                return name
+                
+            }
+            /**
+             * @param node 开始节点
+             * @param node 容器节点
+            */
+            return function (node, wrap) {
+                var path = [],
+                    wrap = wrap || document;
+                //如果当前节点等于容器节点
+                if (node === wrap) {
+                    if (node.nodeType == 1) {
+                        path.push(node.nodeName.toUpperCase());
+                    }
+                    return path;
+                }
+                //如果当前节点的父节点不等于容器节点
+                if (node.parentNode !== wrap) {
+                    path = arguments.callee(node.parentNode, wrap);
+                } else {
+                    if (wrap.nodeType == 1) {
+                        path.push(wrap.nodeName.toUpperCase());
+                    }
+                }
+                var sublingsNames = getSiblingName(node);
+                if (node.nodeType == 1) {
+                    //输入当前节点名称及前面节点名称统计
+                    path.push(node.nodeName.toUpperCase() + sublingsNames);
+                }
+                return path
+            }
+        })()
+
+        window.onload = function () {
+            var dd = document.getElementById('span7');
+            dd.innerHTML ='本节点Xpath:  '+ Interperter(dd).join(' -> ');
+        }
+    </script>
+</head>
+
+<body>
+    <div></div>
+    <div id="container">
+        <div>
+            <div>
+                <ul>
+                    <li>
+                        <span id="span1"></span>
+                    </li>
+                    <li>
+                        <span id="span2"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>      
+        <div>
+            <div>
+                <ul>
+                    <li>
+                        <span id="span6"></span>
+                    </li>
+                    <li>
+                        <span id="span7"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

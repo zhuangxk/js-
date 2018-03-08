@@ -5,7 +5,7 @@
 
  function Page(){
  	var cache={}
- 	return function(page.fn){
+ 	return function(page,fn){
  		if(cache[page]){
  			showpage(page,cache[page]);
  			fn && fn();

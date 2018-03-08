@@ -45,7 +45,7 @@ var Iterator  = function(items,container){
 			//获取指定元素
 			get : function(num){
 				index = num > 0 ? num % length:num % length + length;
-				return items[index];
+				return items[index];dskfl
 			},
 			//使用回调在每个元素的作用域中执行一次
 			dealEach : function(fn){
